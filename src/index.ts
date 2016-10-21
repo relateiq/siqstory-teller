@@ -1,19 +1,21 @@
-///<reference path="../typings/browser.d.ts" />
+///<reference path="../typings/index.d.ts" />
 
-import {SampleModule} from './SampleModule';
+import {SiqStoryTellerCtrl} from './SiqStoryTellerCtrl';
 
 declare var angular;
 declare var require;
 
-export const name = 'SampleModule';
+export const name = 'SiqStoryTeller';
 
-export const angularModule = angular.module(name, [])
-  .directive('sampleModule', function() {
-    return {
-      restrict: 'E',
-      scope: {},
-      controller: SampleModule,
-      controllerAs: 'ctrl',
-      template: require('./index.html')
-    }
-  });
+export const angularModule = angular.module(name, [
+    require('./stuff/LibrarySrvc').name
+])
+    .directive('siqStoryTeller', function() {
+        return {
+            restrict: 'E',
+            scope: {},
+            controller: SiqStoryTellerCtrl,
+            controllerAs: 'ctrl',
+            template: require('./index.html')
+        }
+    });

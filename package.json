@@ -15,6 +15,9 @@
     "start": "bin/iqb start",
     "preversion": "bin/iqb test"
   },
+  "dependencies" : {
+    "siqstory-journalist" : "~0.0.1"
+  },
   "peerDependencies": {
     "angular": "1.x",
     "angular-component": "0.x"

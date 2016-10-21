@@ -1,0 +1,10 @@
+.story-teller{
+    width: 100%;
+    position: relative;
+    iframe {
+        border: 1px solid #333;
+        position: absolute;
+        top: 0;
+        left : 0;
+    }
+}

@@ -1,4 +1,4 @@
-///<reference path="../typings/browser.d.ts" />
+///<reference path="../typings/index.d.ts" />
 declare var require: NodeRequire;
 
 // This that LucidWeb normally provides
@@ -26,7 +26,7 @@ var appLogic = require('../.src');
 // Set up the shell app w/angular, uiq, and a router
 var router = require('web-core-router');
 var routerOptions = {
-  RouterCnst: router.makeRouterCnst()
+    RouterCnst: router.makeRouterCnst()
 };
 
 /* even though shell-apps should really only have 1 view, having the url <=>
@@ -34,21 +34,21 @@ var routerOptions = {
  * easy way to jump to step N)
  */
 routerOptions.RouterCnst.STATES = {
-  MAIN: {
-    name: 'main',
-    queryParams: [],
-    lazyQueryParams: [],
-    template: '<sample-module></sample-module>',
-    modelBindings: {},
-    default: true
-  }
+    MAIN: {
+        name: 'main',
+        queryParams: [],
+        lazyQueryParams: [],
+        template: '<siq-story-teller></siq-story-teller>',
+        modelBindings: {},
+        default: true
+    }
 };
 
 // Bootstrap the shell-app module and configure the router
 module.exports = angular.module('shell-app', ['RouterCore', 'uiq', appLogic.name])
-  .config(router.defaultRuleConfig(routerOptions.RouterCnst))
-  .config(router.stateConfig(routerOptions))
-  .run(router.run(routerOptions));
+    .config(router.defaultRuleConfig(routerOptions.RouterCnst))
+    .config(router.stateConfig(routerOptions))
+    .run(router.run(routerOptions));
 
 window['q$'] = window['jQuery'];
 document.title = appLogic.name;
