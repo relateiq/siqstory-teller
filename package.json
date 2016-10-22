@@ -12,11 +12,10 @@
   },
   "scripts": {
     "test": "bin/iqb test",
-    "start": "bin/iqb start",
-    "preversion": "bin/iqb test"
+    "start": "bin/iqb start"
   },
-  "dependencies" : {
-    "siqstory-journalist" : "~0.0.1"
+  "dependencies": {
+    "siqstory-journalist": "~0.0.1"
   },
   "peerDependencies": {
     "angular": "1.x",
