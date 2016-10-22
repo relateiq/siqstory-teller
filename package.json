@@ -1,6 +1,6 @@
 {
   "name": "siqstory-teller",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "a template for basic ts packages",
   "main": ".src/index.js",
   "homepage": "https://github.com/relateiq/siqstory-teller",
@@ -15,7 +15,7 @@
     "start": "bin/iqb start"
   },
   "dependencies": {
-    "siqstory-journalist": "~0.0.1"
+    "sugar": "~1.4.1"
   },
   "peerDependencies": {
     "angular": "1.x",
@@ -59,9 +59,6 @@
     "transform": [
       "riq-partialify"
     ]
-  },
-  "dependencies": {
-    "sugar": "~1.4.1"
   },
   "author": "scamden@salesforce.com"
 }
