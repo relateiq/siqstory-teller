@@ -1,10 +1,44 @@
 .story-teller{
-    width: 100%;
     position: relative;
+    overflow: hidden;
     iframe {
         border: 1px solid #333;
         position: absolute;
         top: 0;
         left : 0;
+    }
+
+    $clickDiameter : 20px;
+    $clickColor : rgba(0,0,0,0.3);
+    $clickTransitionLength : .1s;
+    .click-bubble{
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        transition: width $clickTransitionLength, height $clickTransitionLength, top $clickTransitionLength, left $clickTransitionLength, background-color $clickTransitionLength, margin $clickTransitionLength;
+
+        &.down{
+            background-color: $clickColor;
+            margin-top: -1 * $clickDiameter / 2;
+            margin-left: -1 * $clickDiameter / 2;
+            width : $clickDiameter;
+            height : $clickDiameter;
+            box-shadow: 0px 0px 5px 1px $clickColor;
+        }
+    }
+
+
+
+    .story-teller-mouse-cursor{
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        img{
+            width: 15px;
+            position: relative;
+            top: -2px;
+            left: -2px;
+        }
     }
 }
