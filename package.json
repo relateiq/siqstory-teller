@@ -1,11 +1,11 @@
 {
   "name": "siqstory-teller",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "a template for basic ts packages",
   "main": ".src/index.js",
   "homepage": "https://github.com/relateiq/siqstory-teller",
   "publishConfig": {
-    "registry": "https://registry.npmjs.org/"
+    "registry": "https://relateiq.artifactoryonline.com/relateiq/api/npm/npm-local/"
   },
   "repository": {
     "url": "https://github.com/relateiq/siqstory-teller.git"
@@ -53,9 +53,6 @@
     "watchify": "~3.7.0",
     "web-core-router": "0.0.3",
     "yargs": "~4.2.0"
-  },
-  "publishConfig": {
-    "registry": "https://relateiq.artifactoryonline.com/relateiq/api/npm/npm-local/"
   },
   "browserify-shim": {},
   "browserify": {
