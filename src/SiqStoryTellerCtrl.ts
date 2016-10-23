@@ -28,11 +28,11 @@ class ClickBubble {
 }
 
 function isElement(node: Node): node is Element {
-    return (<Element>node).setAttribute !== undefined;
+    return node && (<Element>node).setAttribute !== undefined;
 }
 
 function isTextInput(node: Node): node is HTMLInputElement {
-    return (<HTMLInputElement>node).value !== undefined;
+    return node && (<HTMLInputElement>node).value !== undefined;
 }
 
 
@@ -49,7 +49,15 @@ export class SiqStoryTellerCtrl {
         self.element = $element.find('.story-teller')[0];
         self.pointer = $element.find('.story-teller-mouse-cursor')[0];
         // clear it out cause it's easier to go from the root
-        self.iframe.contentDocument.removeChild(self.iframe.contentDocument.childNodes[0]);
+        let idocument = self.iframe.contentDocument;
+        idocument.open();
+        idocument.write("<!DOCTYPE html>");
+        idocument.write("<html>");
+        idocument.write("<head></head>");
+        idocument.write("<body>this is the iframe</body>");
+        idocument.write("</html>");
+        idocument.close();
+        self.iframe.contentDocument.removeChild(self.iframe.contentDocument.childNodes[1]);
         LibrarySrvc.getLatestStory().then(function(story: SiqStoryTwist[]) {
             self.story = story;
             self.playNextStoryFrame();
@@ -91,13 +99,17 @@ export class SiqStoryTellerCtrl {
                                 return;
                             }
                             let removeNode;
-                            if (storyNode.nodeType === 3) {
-                                removeNode = self.findNodeByValue(storyNode.nodeValue, targetNode);
+                            if (storyNode.nodeType === 3 || storyNode.nodeType === 8) {
+                                removeNode = self.findTextNode(storyNode, targetNode);
                                 delete nodeIdToTextNode[storyNode.nodeId];
                             } else {
                                 removeNode = self.findNodeByNodeId(storyNode.nodeId, targetNode);
                             }
                             if (removeNode) {
+                                if (removeNode.parentNode !== targetNode) {
+                                    console.log('removeNode isnt the child of the target at this point....', storyNode);
+                                    return;
+                                }
                                 targetNode.removeChild(removeNode);
                             }
 
@@ -154,11 +166,16 @@ export class SiqStoryTellerCtrl {
     }
 
     createNode(storyNode: SiqStoryNode): Node {
-        if (storyNode.nodeType === 3) {
+        if (storyNode.nodeType === 3 || storyNode.nodeType === 8) {
             if (nodeIdToTextNode[storyNode.nodeId]) {
                 return nodeIdToTextNode[storyNode.nodeId];
             }
-            var textNode = this.iframe.contentDocument.createTextNode(storyNode.nodeValue);
+            var textNode;
+            if (storyNode.nodeType === 3) {
+                textNode = this.iframe.contentDocument.createTextNode(storyNode.nodeValue);
+            } else if (storyNode.nodeType === 8) {
+                textNode = this.iframe.contentDocument.createComment(storyNode.nodeValue);
+            }
             textNode['__siqStoryNodeId'] = storyNode.nodeId;
             nodeIdToTextNode[storyNode.nodeId] = textNode;
             return textNode;
@@ -186,10 +203,10 @@ export class SiqStoryTellerCtrl {
         }
     }
 
-    findNodeByValue(value, targetNode): Node {
-        return Array.prototype.slice.call(targetNode.childNodes).filter(function(node) {
-            return node.nodeValue = value;
-        })[0];
+    findTextNode(storyNode, targetNode): Node {
+        if (nodeIdToTextNode[storyNode.nodeId]) {
+            return nodeIdToTextNode[storyNode.nodeId];
+        }
     }
 
     findNodeByNodeId(nodeId, ancestorNode?: Element | Document): Element | Document {
