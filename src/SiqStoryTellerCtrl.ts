@@ -27,6 +27,15 @@ class ClickBubble {
     }
 }
 
+function isElement(node: Node): node is Element {
+    return (<Element>node).setAttribute !== undefined;
+}
+
+function isTextInput(node: Node): node is HTMLInputElement {
+    return (<HTMLInputElement>node).value !== undefined;
+}
+
+
 export class SiqStoryTellerCtrl {
     private iframe: HTMLIFrameElement;
     private element: HTMLElement;
@@ -55,21 +64,21 @@ export class SiqStoryTellerCtrl {
             return;
         }
         let lastTwist = self.story[self.storyIndex - 1];
-        let nextFrameDelay = Math.ceil(thisTwist.timeSincePageLoad - (lastTwist && lastTwist.timeSincePageLoad || 0));
+        let nextFrameDelay = Math.min(Math.ceil(thisTwist.timeSincePageLoad - (lastTwist && lastTwist.timeSincePageLoad || 0)), 1000);
         setTimeout(function() {
             let twist = thisTwist;
-            let targetNode = self.findNodeByNodeId(twist.targetNode);
+            let targetNode = twist.targetNode && self.findNodeByNodeId(twist.targetNode.nodeId);
             switch (twist.type) {
                 case 'childList':
                     if (twist.addedNodes) {
                         twist.addedNodes.forEach(function(storyNode: SiqStoryNode) {
+                            if (!targetNode) {
+                                console.warn('could not find targetNode for addition', JSON.stringify(twist.targetNode));
+                                return;
+                            }
                             let node = self.createNode(storyNode);
                             if (node) {
-                                if (!targetNode) {
-                                    console.warn('could not find targetNode for addition this could be bad.. but continuing');
-                                } else {
-                                    targetNode.appendChild(node);
-                                }
+                                targetNode.appendChild(node);
                             } else if (storyNode.nodeType === 1 || storyNode.nodeType === 3) {
                                 throw new Error('couldnt make node for element or text node');
                             }
@@ -77,20 +86,26 @@ export class SiqStoryTellerCtrl {
                     }
                     if (twist.removedNodes) {
                         twist.removedNodes.forEach(function(storyNode: SiqStoryNode) {
+                            if (!targetNode) {
+                                console.log('could not find targetNode for removal', JSON.stringify(twist.targetNode));
+                                return;
+                            }
                             let removeNode;
                             if (storyNode.nodeType === 3) {
                                 removeNode = self.findNodeByValue(storyNode.nodeValue, targetNode);
+                                delete nodeIdToTextNode[storyNode.nodeId];
                             } else {
                                 removeNode = self.findNodeByNodeId(storyNode.nodeId, targetNode);
                             }
-                            if (removeNode && targetNode) {
+                            if (removeNode) {
                                 targetNode.removeChild(removeNode);
                             }
+
                         });
                     }
                     break;
                 case 'attributes':
-                    if (targetNode instanceof Element) {
+                    if (isElement(targetNode)) {
                         targetNode.setAttribute(twist.attributeName, twist.attributeValue);
                     }
                     break;
@@ -126,7 +141,7 @@ export class SiqStoryTellerCtrl {
                             self.currentClickBubble = null;
                             break;
                         case 'input':
-                            if (targetNode instanceof HTMLInputElement || targetNode instanceof HTMLTextAreaElement) {
+                            if (isTextInput(targetNode)) {
                                 targetNode.value = twist.textValue;
                             }
                             break;
@@ -143,7 +158,7 @@ export class SiqStoryTellerCtrl {
             if (nodeIdToTextNode[storyNode.nodeId]) {
                 return nodeIdToTextNode[storyNode.nodeId];
             }
-            var textNode = document.createTextNode(storyNode.nodeValue);
+            var textNode = this.iframe.contentDocument.createTextNode(storyNode.nodeValue);
             textNode['__siqStoryNodeId'] = storyNode.nodeId;
             nodeIdToTextNode[storyNode.nodeId] = textNode;
             return textNode;
@@ -151,7 +166,7 @@ export class SiqStoryTellerCtrl {
         if (storyNode.nodeType === 1) {
             let node = (<Element>this.findNodeByNodeId(storyNode.nodeId));
             if (!node) {
-                node = document.createElement(storyNode.tagName);
+                node = this.iframe.contentDocument.createElement(storyNode.tagName);
                 node.setAttribute('siq-story-node-id', storyNode.nodeId);
                 if (storyNode.attributes) {
                     Object.keys(storyNode.attributes).forEach(function(attributeName) {
@@ -177,7 +192,7 @@ export class SiqStoryTellerCtrl {
         })[0];
     }
 
-    findNodeByNodeId(nodeId, targetNode?: Element | Document): Element | Document {
+    findNodeByNodeId(nodeId, ancestorNode?: Element | Document): Element | Document {
 
         if (nodeId === 'document') {
             return this.iframe.contentDocument;
@@ -186,8 +201,8 @@ export class SiqStoryTellerCtrl {
             return this.iframe.contentDocument.body;
         }
         if (nodeId !== undefined) {
-            targetNode = targetNode || this.iframe.contentDocument;
-            return targetNode.querySelector('[siq-story-node-id="' + nodeId + '"]');
+            ancestorNode = ancestorNode || this.iframe.contentDocument;
+            return ancestorNode.querySelector('[siq-story-node-id="' + nodeId + '"]');
         }
     }
 }
