@@ -4,6 +4,9 @@
   "description": "a template for basic ts packages",
   "main": ".src/index.js",
   "homepage": "https://github.com/relateiq/siqstory-teller",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "repository": {
     "url": "https://github.com/relateiq/siqstory-teller.git"
   },
